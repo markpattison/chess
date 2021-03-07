@@ -6,6 +6,9 @@ type Side =
     | White
     | Black
     member this.Opposite() = match this with | White -> Black | Black -> White
+    override this.ToString() = match this with | White -> "White" | Black -> "Black"
+    member this.ToUpper() = match this with | White -> "W" | Black -> "B"
+    member this.ToLower() = match this with | White -> "w" | Black -> "b"
 
 type Piece =
     | Pawn
