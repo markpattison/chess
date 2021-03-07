@@ -4,25 +4,35 @@ open System
 
 open Position
 
+type private PieceFromCharResult =
+    | PieceSide of Piece * Side
+    | Empty of int
+
+let pieceChar (pieceSide: Piece * Side) =
+    match pieceSide with
+    | piece, White -> piece.ToString()
+    | piece, Black -> piece.ToString().ToLower()
+
+let rec private pieceFolder accString accBlanks remaining =
+    match remaining, accBlanks with
+    | [], 0 -> accString
+    | [], n -> accString + n.ToString()
+    | None :: xs, n -> pieceFolder accString (n + 1) xs
+    | Some pieceSide :: xs, 0 -> pieceFolder (accString + pieceChar pieceSide) 0 xs
+    | Some pieceSide :: xs, n -> pieceFolder (accString + n.ToString() + pieceChar pieceSide) 0 xs
+
+let private toRow = pieceFolder "" 0
+
 let toFen position =
 
     // see https://www.chessprogramming.org/Forsyth-Edwards_Notation
 
     let (Board board) = position.Board
 
-    let rec pieceFolder accString accBlanks remaining =
-        match remaining, accBlanks with
-        | [], 0 -> accString
-        | [], n -> accString + n.ToString()
-        | None :: xs, n -> pieceFolder accString (n + 1) xs
-        | Some pieceSide :: xs, 0 -> pieceFolder (accString + pieceChar pieceSide) 0 xs
-        | Some pieceSide :: xs, n -> pieceFolder (accString + n.ToString() + pieceChar pieceSide) 0 xs
-
     let piecesByRow =
         [| 7 .. -1 .. 0 |]
         |> Array.map (fun row ->
-            let rowPieces = board.[row, *] |> Array.toList
-            pieceFolder "" 0 rowPieces)
+            board.[row, *] |> Array.toList |> toRow)
 
     let pieces = String.Join('/', piecesByRow)
 
@@ -43,10 +53,6 @@ let toFen position =
         | Some square -> square.toAlgebraic()
 
     sprintf "%s %s %s %s %i %i" pieces sideToMove castlingAbility enPassantTargetSquare position.HalfMoveClock position.FullMoveCount
-
-type PieceFromCharResult =
-    | PieceSide of Piece * Side
-    | Empty of int
 
 let private pieceFromChar c =
     match c with

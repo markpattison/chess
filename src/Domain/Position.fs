@@ -5,6 +5,7 @@ open System
 type Side =
     | White
     | Black
+    member this.Opposite() = match this with | White -> Black | Black -> White
 
 type Piece =
     | Pawn
@@ -21,11 +22,6 @@ type Piece =
         | Rook -> "R"
         | Queen -> "Q"
         | King -> "K"
-
-let pieceChar (pieceSide: Piece * Side) =
-    match pieceSide with
-    | piece, White -> piece.ToString()
-    | piece, Black -> piece.ToString().ToLower()
 
 let pieceOptChar (pieceOpt: (Piece * Side) option) =
     match pieceOpt with
