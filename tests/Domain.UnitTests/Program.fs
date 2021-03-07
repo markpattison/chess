@@ -8,7 +8,8 @@ let main args =
     let allTests =
         testList "Unit tests" [
             SquareTests.tests
-            BoardTests.tests
+            PositionTests.tests
+            FenTests.tests
         ]
 
     runTestsWithCLIArgs [] args allTests

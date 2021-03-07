@@ -6,7 +6,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="SquareTests.fs" />
-    <Compile Include="BoardTests.fs" />
+    <Compile Include="PositionTests.fs" />
+    <Compile Include="FenTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

@@ -2,7 +2,7 @@ module Chess.Domain.UnitTests.SquareTests
 
 open Expecto
 
-open Chess.Domain
+open Chess.Domain.Position
 
 let sampleSquares = [
     "e2", 1, 4
@@ -34,24 +34,9 @@ let testInvalidAlgebraic (alg, name) =
         Expect.throws (fun _ -> Square.fromAlgebraic alg |> ignore) "Invalid algebraic notation should throw an exception"
     }
 
-let rowColToAlgebraic =
-    sampleSquares
-    |> List.map testRowColToAlgebraic
-    |> testList "Row/col to algebraic"
-
-let algebraicToRowCol =
-    sampleSquares
-    |> List.map testAlgebraicToRowCol
-    |> testList "Algebraic to row/col"
-
-let invalidAlgebraic =
-    sampleInvalidAlgebraic
-    |> List.map testInvalidAlgebraic
-    |> testList "Invalid algebraic"
-
 let tests =
     testList "Square tests" [
-        rowColToAlgebraic
-        algebraicToRowCol
-        invalidAlgebraic
+        sampleSquares |> List.map testRowColToAlgebraic |> testList "Row/col to algebraic"
+        sampleSquares |> List.map testAlgebraicToRowCol |> testList "Algebraic to row/col"
+        sampleInvalidAlgebraic |> List.map testInvalidAlgebraic |> testList "Invalid algebraic"
     ]
