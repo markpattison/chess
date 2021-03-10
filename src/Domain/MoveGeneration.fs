@@ -154,13 +154,13 @@ let private potentialBlackPawnMoves square position =
         if row = 6 && position.Board.Get(nextSquare) = None && position.Board.Get(nextSquare2) = None then { From = square; To = nextSquare2; Type = DoublePawnPush }
 
         // capture left
-        if row > 1 && col > 0 then
+        if row > 1 && col < 7 then
             match position.Board.Get(leftCapture) with
             | Some (piece, side) when side = otherSide -> { From = square; To = leftCapture; Type = Capture piece }
             | _ -> ()
         
         // capture right
-        if row > 1 && col < 7 then
+        if row > 1 && col > 0 then
             match position.Board.Get(rightCapture) with
             | Some (piece, side) when side = otherSide -> { From = square; To = rightCapture; Type = Capture piece }
             | _ -> ()
