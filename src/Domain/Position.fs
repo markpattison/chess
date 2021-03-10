@@ -53,6 +53,71 @@ type Square =
             { Row = row; Col = col }
         | _ -> failwithf "Algebraic notation must have two characters: %s" alg
 
+let a1 = { Row = 0; Col = 0 }
+let a2 = { Row = 1; Col = 0 }
+let a3 = { Row = 2; Col = 0 }
+let a4 = { Row = 3; Col = 0 }
+let a5 = { Row = 4; Col = 0 }
+let a6 = { Row = 5; Col = 0 }
+let a7 = { Row = 6; Col = 0 }
+let a8 = { Row = 7; Col = 0 }
+let b1 = { Row = 0; Col = 1 }
+let b2 = { Row = 1; Col = 1 }
+let b3 = { Row = 2; Col = 1 }
+let b4 = { Row = 3; Col = 1 }
+let b5 = { Row = 4; Col = 1 }
+let b6 = { Row = 5; Col = 1 }
+let b7 = { Row = 6; Col = 1 }
+let b8 = { Row = 7; Col = 1 }
+let c1 = { Row = 0; Col = 2 }
+let c2 = { Row = 1; Col = 2 }
+let c3 = { Row = 2; Col = 2 }
+let c4 = { Row = 3; Col = 2 }
+let c5 = { Row = 4; Col = 2 }
+let c6 = { Row = 5; Col = 2 }
+let c7 = { Row = 6; Col = 2 }
+let c8 = { Row = 7; Col = 2 }
+let d1 = { Row = 0; Col = 3 }
+let d2 = { Row = 1; Col = 3 }
+let d3 = { Row = 2; Col = 3 }
+let d4 = { Row = 3; Col = 3 }
+let d5 = { Row = 4; Col = 3 }
+let d6 = { Row = 5; Col = 3 }
+let d7 = { Row = 6; Col = 3 }
+let d8 = { Row = 7; Col = 3 }
+let e1 = { Row = 0; Col = 4 }
+let e2 = { Row = 1; Col = 4 }
+let e3 = { Row = 2; Col = 4 }
+let e4 = { Row = 3; Col = 4 }
+let e5 = { Row = 4; Col = 4 }
+let e6 = { Row = 5; Col = 4 }
+let e7 = { Row = 6; Col = 4 }
+let e8 = { Row = 7; Col = 4 }
+let f1 = { Row = 0; Col = 5 }
+let f2 = { Row = 1; Col = 5 }
+let f3 = { Row = 2; Col = 5 }
+let f4 = { Row = 3; Col = 5 }
+let f5 = { Row = 4; Col = 5 }
+let f6 = { Row = 5; Col = 5 }
+let f7 = { Row = 6; Col = 5 }
+let f8 = { Row = 7; Col = 5 }
+let g1 = { Row = 0; Col = 6 }
+let g2 = { Row = 1; Col = 6 }
+let g3 = { Row = 2; Col = 6 }
+let g4 = { Row = 3; Col = 6 }
+let g5 = { Row = 4; Col = 6 }
+let g6 = { Row = 5; Col = 6 }
+let g7 = { Row = 6; Col = 6 }
+let g8 = { Row = 7; Col = 6 }
+let h1 = { Row = 0; Col = 7 }
+let h2 = { Row = 1; Col = 7 }
+let h3 = { Row = 2; Col = 7 }
+let h4 = { Row = 3; Col = 7 }
+let h5 = { Row = 4; Col = 7 }
+let h6 = { Row = 5; Col = 7 }
+let h7 = { Row = 6; Col = 7 }
+let h8 = { Row = 7; Col = 7 }
+
 type Board = | Board of ((Piece * Side) option [,]) with
     static member empty() : Board = Board (Array2D.create 8 8 None)
     member this.Get(square) = match this with | Board board -> board.[square.Row, square.Col]

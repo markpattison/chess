@@ -23,6 +23,15 @@ type MoveType =
     | Capture of Piece
     | Promotion of PromotionType
     | CapturePromotion of Piece * PromotionType
+    member this.Captures() =
+        match this with
+        | Capture p | CapturePromotion (p, _) -> Some p
+        | EnPassantCapture -> Some Pawn
+        | _ -> None
+    member this.PromotesTo() =
+        match this with
+        | Promotion p | CapturePromotion (_, p) -> Some p
+        | _ -> None
 
 type Move =
     {
@@ -30,4 +39,5 @@ type Move =
         To: Square
         Type: MoveType
     }
-
+    member this.IsCapture() = this.Type.Captures().IsSome
+    member this.IsPromotion() = this.Type.PromotesTo().IsSome

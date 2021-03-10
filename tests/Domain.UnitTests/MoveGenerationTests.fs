@@ -20,20 +20,152 @@ let emptyPosition =
 let positionWithLonePiece square pieceSide =
     { emptyPosition with Board = Board.empty().Set(square, Some pieceSide) }
 
-let corners =
-    [
-        { Row = 0; Col = 0 }
-        { Row = 0; Col = 7 }
-        { Row = 7; Col = 7 }
-        { Row = 7; Col = 0 }
-    ]
+let positionWithPieces pieceSideSquares =
+    let board = Board.empty()
+    pieceSideSquares |> Seq.iter (fun (piece, side, square) -> board.Set(square, Some (piece, side)) |> ignore)
+    { emptyPosition with Board = board }
 
-let midEdges =
-    [
-        { Row = 0; Col = 3 }
-        { Row = 4; Col = 7 }
-        { Row = 7; Col = 4 }
-        { Row = 7; Col = 3 }
+let blackToMove position = { position with ToMove = Black }
+let withEnPassantTarget square position = { position with EnPassantTargetSquare = Some square }
+
+let corners = [ a1; a8; h1; h8 ]
+let midEdges = [ d1; h5; e8; a4 ]
+
+let promotionTypes = [ PromotionKnight; PromotionBishop; PromotionRook; PromotionQueen ]
+
+let pawnTests =
+    testList "Pawn" [
+        test "White pawn on second rank" {
+            let square = c2
+            let position = positionWithLonePiece square (Pawn, White)
+
+            let moves = potentialPawnMoves square position
+            
+            Expect.hasLength moves 2 "Lone pawn on second rank should have 2 moves"
+        }
+
+        test "Black pawn on second rank" {
+            let square = d7
+            let position = positionWithLonePiece square (Pawn, Black) |> blackToMove
+
+            let moves = potentialPawnMoves square position
+            
+            Expect.hasLength moves 2 "Lone pawn on second rank should have 2 moves"
+        }
+
+        test "White pawn on third rank" {
+            let square = c3
+            let position = positionWithLonePiece square (Pawn, White)
+
+            let moves = potentialPawnMoves square position
+            
+            Expect.hasLength moves 1 "Lone pawn on third rank should have 1 move"
+        }
+
+        test "Black pawn on third rank" {
+            let square = d6
+            let position = positionWithLonePiece square (Pawn, Black) |> blackToMove
+
+            let moves = potentialPawnMoves square position
+            
+            Expect.hasLength moves 1 "Lone pawn on third rank should have 1 move"
+        }
+
+        test "White pawn on seventh rank" {
+            let square = c7
+            let position = positionWithLonePiece square (Pawn, White)
+
+            let moves = potentialPawnMoves square position
+            
+            Expect.hasLength moves 4 "Lone pawn on seventh rank should have 4 moves"
+            Expect.all moves (fun m -> m.IsPromotion()) "All pawn moves from seventh rank should be promotions"
+            promotionTypes |> List.iter (fun pt -> Expect.exists moves (fun m -> m.Type.PromotesTo() = Some pt) "All promotion options should be possible")
+        }
+
+        test "Black pawn on seventh rank" {
+            let square = d2
+            let position = positionWithLonePiece square (Pawn, Black) |> blackToMove
+
+            let moves = potentialPawnMoves square position
+            
+            Expect.hasLength moves 4 "Lone pawn on seventh rank should have 4 moves"
+            Expect.all moves (fun m -> m.IsPromotion()) "All pawn moves from seventh rank should be promotions"
+            promotionTypes |> List.iter (fun pt -> Expect.exists moves (fun m -> m.Type.PromotesTo() = Some pt) "All promotion options should be possible")
+        }
+
+        test "White pawn with available captures" {
+            let square = c3
+            let position = positionWithPieces [ Pawn, White, c3; Pawn, Black, b4; Pawn, Black, d4 ]
+            
+            let moves = potentialPawnMoves square position
+
+            moves |> Seq.iter (fun m -> printfn "From: %O to: %O type: %O" m.From m.To m.Type)
+
+            Expect.hasLength moves 3 "Pawn with available captures should have 3 moves"
+            Expect.exists moves (fun m -> m.To = b4) "Pawn can capture on b4"
+            Expect.exists moves (fun m -> m.To = d4) "Pawn can capture on d4"
+        }
+
+        test "Black pawn with available captures" {
+            let square = d6
+            let position = positionWithPieces [ Pawn, Black, d6; Pawn, White, c5; Pawn, White, e5 ] |> blackToMove
+
+            let moves = potentialPawnMoves square position
+
+            Expect.hasLength moves 3 "Pawn with available captures should have 3 moves"
+            Expect.exists moves (fun m -> m.To = c5) "Pawn can capture on c5"
+            Expect.exists moves (fun m -> m.To = e5) "Pawn can capture on e5"
+        }
+
+        test "White pawn on seventh rank with available captures" {
+            let square = g7
+            let position = positionWithPieces [ Pawn, White, g7; Rook, Black, f8; Rook, Black, h8 ]
+            
+            let moves = potentialPawnMoves square position
+
+            moves |> Seq.iter (fun m -> printfn "From: %O to: %O type: %O" m.From m.To m.Type)
+
+            Expect.hasLength moves 12 "Pawn on seventh rank with available captures should have 12 moves"
+            Expect.all moves (fun m -> m.IsPromotion()) "All pawn moves from seventh rank should be promotions"
+            Expect.hasLength (moves |> List.filter (fun m -> m.To = f8)) 4 "Four capture-promotions to a1"
+            Expect.hasLength (moves |> List.filter (fun m -> m.To = g8)) 4 "Four promotions to b1"
+            Expect.hasLength (moves |> List.filter (fun m -> m.To = h8)) 4 "Four capture-promotions to c1"
+            promotionTypes |> List.iter (fun pt -> Expect.hasLength (moves |> List.filter (fun m -> m.Type.PromotesTo() = Some pt)) 3 "Three moves for each promotion type")
+        }
+
+        test "Black pawn on seventh rank with available captures" {
+            let square = b2
+            let position = positionWithPieces [ Pawn, Black, b2; Knight, White, a1; Queen, White, c1 ] |> blackToMove
+
+            let moves = potentialPawnMoves square position
+
+            Expect.hasLength moves 12 "Pawn on seventh rank with available captures should have 12 moves"
+            Expect.all moves (fun m -> m.IsPromotion()) "All pawn moves from seventh rank should be promotions"
+            Expect.hasLength (moves |> List.filter (fun m -> m.To = a1)) 4 "Four capture-promotions to a1"
+            Expect.hasLength (moves |> List.filter (fun m -> m.To = b1)) 4 "Four promotions to b1"
+            Expect.hasLength (moves |> List.filter (fun m -> m.To = c1)) 4 "Four capture-promotions to c1"
+            promotionTypes |> List.iter (fun pt -> Expect.hasLength (moves |> List.filter (fun m -> m.Type.PromotesTo() = Some pt)) 3 "Three moves for each promotion type")
+        }
+
+        test "White pawn with en passant capture" {
+            let square = c5
+            let position = positionWithPieces [ Pawn, White, c5; Pawn, Black, d5 ] |> withEnPassantTarget d6
+
+            let moves = potentialPawnMoves square position
+
+            Expect.hasLength moves 2 "Pawn should have two moves"
+            Expect.exists moves (fun m -> m.Type = EnPassantCapture) "Pawn can capture en passant"
+        }
+
+        test "Black pawn with en passant capture" {
+            let square = d4
+            let position = positionWithPieces [ Pawn, Black, d4; Pawn, White, c4 ] |> withEnPassantTarget c3 |> blackToMove
+
+            let moves = potentialPawnMoves square position
+
+            Expect.hasLength moves 2 "Pawn should have two moves"
+            Expect.exists moves (fun m -> m.Type = EnPassantCapture) "Pawn can capture en passant"
+        }
     ]
 
 let testKingInCorner square =
@@ -202,7 +334,8 @@ let queenTests =
     ]
 
 let tests =
-    testList "Move generation tests" [
+    testList "Potential move generation tests" [
+        pawnTests
         kingTests
         knightTests
         bishopTests
