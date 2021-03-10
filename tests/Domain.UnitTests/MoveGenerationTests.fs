@@ -62,7 +62,7 @@ let kingTests =
 
             let moves = potentialKingMoves square position
 
-            Expect.hasLength moves 8 "Lone king should have 8 moves"
+            Expect.hasLength moves 8 "King in middle should have 8 moves"
         }
 
         corners |> List.map testKingInCorner |> testList "Corner"
@@ -95,15 +95,117 @@ let knightTests =
 
             let moves = potentialKnightMoves square position
 
-            Expect.hasLength moves 8 "Lone knight should have 8 moves"
+            Expect.hasLength moves 8 "Knight in middle should have 8 moves"
         }
 
         corners |> List.map testKnightInCorner |> testList "Corner"
         midEdges |> List.map testKnightOnEdge |> testList "Mid-edge"
     ]
 
+let testBishopInCorner square =
+    test (sprintf "Bishop on %O" square) {
+        let position = positionWithLonePiece square (Bishop, White)
+
+        let moves = potentialBishopMoves square position
+
+        Expect.hasLength moves 7 "Bishop in corner should have 7 moves"        
+    }
+
+let testBishopOnEdge square =
+    test (sprintf "Bishop on %O" square) {
+        let position = positionWithLonePiece square (Bishop, White)
+
+        let moves = potentialBishopMoves square position
+
+        Expect.hasLength moves 7 "Bishop mid-edge should have 7 moves"        
+    }
+
+let bishopTests =
+    testList "Bishop" [
+        test "Middle" {
+            let square = { Row = 3; Col = 3 }
+            let position = positionWithLonePiece square (Bishop, White)
+
+            let moves = potentialBishopMoves square position
+
+            Expect.hasLength moves 13 "Bishop in middle should have 13 moves"
+        }
+
+        corners |> List.map testBishopInCorner |> testList "Corner"
+        midEdges |> List.map testBishopOnEdge |> testList "Mid-edge"
+    ]
+
+let testRookInCorner square =
+    test (sprintf "Rook on %O" square) {
+        let position = positionWithLonePiece square (Rook, White)
+
+        let moves = potentialRookMoves square position
+
+        Expect.hasLength moves 14 "Rook in corner should have 14 moves"        
+    }
+
+let testRookOnEdge square =
+    test (sprintf "Rook on %O" square) {
+        let position = positionWithLonePiece square (Rook, White)
+
+        let moves = potentialRookMoves square position
+
+        Expect.hasLength moves 14 "Rook mid-edge should have 14 moves"        
+    }
+
+let rookTests =
+    testList "Rook" [
+        test "Middle" {
+            let square = { Row = 3; Col = 3 }
+            let position = positionWithLonePiece square (Rook, White)
+
+            let moves = potentialRookMoves square position
+
+            Expect.hasLength moves 14 "Rook in middle should have 14 moves"
+        }
+
+        corners |> List.map testRookInCorner |> testList "Corner"
+        midEdges |> List.map testRookOnEdge |> testList "Mid-edge"
+    ]
+
+let testQueenInCorner square =
+    test (sprintf "Queen on %O" square) {
+        let position = positionWithLonePiece square (Queen, White)
+
+        let moves = potentialQueenMoves square position
+
+        Expect.hasLength moves 21 "Queen in corner should have 21 moves"        
+    }
+
+let testQueenOnEdge square =
+    test (sprintf "Queen on %O" square) {
+        let position = positionWithLonePiece square (Queen, White)
+
+        let moves = potentialQueenMoves square position
+
+        Expect.hasLength moves 21 "Queen mid-edge should have 21 moves"        
+    }
+
+let queenTests =
+    testList "Queen" [
+        test "Middle" {
+            let square = { Row = 3; Col = 3 }
+            let position = positionWithLonePiece square (Queen, White)
+
+            let moves = potentialQueenMoves square position
+
+            Expect.hasLength moves 27 "Queen in middle should have 27 moves"
+        }
+
+        corners |> List.map testQueenInCorner |> testList "Corner"
+        midEdges |> List.map testQueenOnEdge |> testList "Mid-edge"
+    ]
+
 let tests =
     testList "Move generation tests" [
         kingTests
         knightTests
+        bishopTests
+        rookTests
+        queenTests
     ]
