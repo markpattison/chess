@@ -123,8 +123,6 @@ let pawnTests =
             
             let moves = potentialPawnMoves square position
 
-            moves |> Seq.iter (fun m -> printfn "From: %O to: %O type: %O" m.From m.To m.Type)
-
             Expect.hasLength moves 12 "Pawn on seventh rank with available captures should have 12 moves"
             Expect.all moves (fun m -> m.IsPromotion()) "All pawn moves from seventh rank should be promotions"
             Expect.hasLength (moves |> List.filter (fun m -> m.To = f8)) 4 "Four capture-promotions to a1"
@@ -166,6 +164,53 @@ let pawnTests =
             Expect.hasLength moves 2 "Pawn should have two moves"
             Expect.exists moves (fun m -> m.Type = EnPassantCapture) "Pawn can capture en passant"
         }
+
+        test "White pawn cannot advance if blocked" {
+            let square = h3
+            let position = positionWithPieces [ Pawn, White, h3; Pawn, Black, h4 ]
+
+            let moves = potentialPawnMoves square position
+            Expect.isEmpty moves "Pawn should have no moves"
+        }
+
+        test "Black pawn cannot advance if blocked" {
+            let square = a6
+            let position = positionWithPieces [ Pawn, Black, a6; Pawn, White, a5 ] |> blackToMove
+
+            let moves = potentialPawnMoves square position
+            Expect.isEmpty moves "Pawn should have no moves"
+        }
+
+        test "White pawn on second rank cannot advance two squares if blocked on first square" {
+            let square = a2
+            let position = positionWithPieces [ Pawn, White, a2; Pawn, Black, a3 ]
+
+            let moves = potentialPawnMoves square position
+            Expect.isEmpty moves "Pawn should have no moves"
+        }
+
+        test "Black pawn on second rank cannot advance two squares if blocked on first square" {
+            let square = h7
+            let position = positionWithPieces [ Pawn, Black, h7; Pawn, White, h6 ] |> blackToMove
+
+            let moves = potentialPawnMoves square position
+            Expect.isEmpty moves "Pawn should have no moves"
+        }
+        test "White pawn on second rank cannot advance two squares if blocked on second square" {
+            let square = a2
+            let position = positionWithPieces [ Pawn, White, a2; Pawn, Black, a4 ]
+
+            let moves = potentialPawnMoves square position
+            Expect.hasLength moves 1 "Pawn should only have one move"
+        }
+
+        test "Black pawn on second rank cannot advance two squares if blocked on second square" {
+            let square = h7
+            let position = positionWithPieces [ Pawn, Black, h7; Pawn, White, h5 ] |> blackToMove
+
+            let moves = potentialPawnMoves square position
+            Expect.hasLength moves 1 "Pawn should only have one move"
+        }    
     ]
 
 let testKingInCorner square =
