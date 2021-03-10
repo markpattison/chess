@@ -38,7 +38,7 @@ type Square =
         Col: int
     }
     member this.toAlgebraic() = sprintf "%c%i" (char (this.Col + 97)) (this.Row + 1)
-    override this.ToString() = sprintf "%O (%i, %i)" this this.Row this.Col
+    override this.ToString() = this.toAlgebraic()
     static member fromAlgebraic (alg: string) =
         match List.ofSeq alg with
         | [ algCol; algRow ] ->
@@ -53,8 +53,10 @@ type Square =
             { Row = row; Col = col }
         | _ -> failwithf "Algebraic notation must have two characters: %s" alg
 
-type Board = | Board of ((Piece * Side) option [,])
-    with static member empty() : Board = Board (Array2D.create 8 8 None)
+type Board = | Board of ((Piece * Side) option [,]) with
+    static member empty() : Board = Board (Array2D.create 8 8 None)
+    member this.Get(square) = match this with | Board board -> board.[square.Row, square.Col]
+    member this.Set(square, pieceSide) = match this with | Board board -> board.[square.Row, square.Col] <- pieceSide; this
 
 type CastlingRights =
     {
@@ -62,6 +64,7 @@ type CastlingRights =
         QueenSide: bool
     }
     static member both = { KingSide = true; QueenSide = true }
+    static member neither = { KingSide = false; QueenSide = false }
 
 type Position =
     {

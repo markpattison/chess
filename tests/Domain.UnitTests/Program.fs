@@ -10,6 +10,7 @@ let main args =
             SquareTests.tests
             PositionTests.tests
             FenTests.tests
+            MoveGenerationTests.tests
         ]
 
     runTestsWithCLIArgs [] args allTests

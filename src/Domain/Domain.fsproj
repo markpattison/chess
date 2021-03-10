@@ -7,6 +7,7 @@
     <Compile Include="Position.fs" />
     <Compile Include="Move.fs" />
     <Compile Include="Fen.fs" />
+    <Compile Include="MoveGeneration.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

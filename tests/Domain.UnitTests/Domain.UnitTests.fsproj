@@ -8,6 +8,7 @@
     <Compile Include="SquareTests.fs" />
     <Compile Include="PositionTests.fs" />
     <Compile Include="FenTests.fs" />
+    <Compile Include="MoveGenerationTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
