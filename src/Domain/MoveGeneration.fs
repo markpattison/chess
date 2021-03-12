@@ -394,3 +394,12 @@ let allLegalMoves position =
     let legalMoves = potentialMoves |> List.filter (isMoveLegal position)
 
     legalMoves
+
+let rec perft depth position =
+    if depth <= 0 then
+        1
+    else
+        position
+        |> allLegalMoves
+        |> List.map (makeMoveUnchecked position)
+        |> List.sumBy (perft (depth - 1))
