@@ -122,6 +122,7 @@ type Board = | Board of ((Piece * Side) option [,]) with
     static member empty() : Board = Board (Array2D.create 8 8 None)
     member this.Get(square) = match this with | Board board -> board.[square.Row, square.Col]
     member this.Set(square, pieceSide) = match this with | Board board -> board.[square.Row, square.Col] <- pieceSide; this
+    member this.Clone() = match this with | Board board -> Array2D.copy board |> Board
 
 type CastlingRights =
     {

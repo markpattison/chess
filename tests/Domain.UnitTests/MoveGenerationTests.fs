@@ -103,8 +103,6 @@ let pawnTests =
             
             let moves = potentialPawnMoves square position
 
-            moves |> Seq.iter (fun m -> printfn "From: %O to: %O type: %O" m.From m.To m.Type)
-
             Expect.hasLength moves 3 "Pawn with available captures should have 3 moves"
             Expect.exists moves (fun m -> m.To = b4) "Pawn can capture on b4"
             Expect.exists moves (fun m -> m.To = d4) "Pawn can capture on d4"

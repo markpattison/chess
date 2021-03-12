@@ -309,3 +309,57 @@ let potentialPawnMoves square position =
     match position.ToMove with
     | White -> potentialWhitePawnMoves square position
     | Black -> potentialBlackPawnMoves square position
+
+let makeMoveUnchecked position move =
+    let pieceSideOpt = position.Board.Get(move.From)
+    let isPawnMove = match pieceSideOpt with Some (Pawn, _) -> true | _ -> false
+
+    let halfMoveClock = if move.IsCapture() || isPawnMove then 0 else position.HalfMoveClock + 1
+    let fullMoveCount = match position.ToMove with | White -> position.FullMoveCount | Black -> position.FullMoveCount + 1
+    let enPassantTargetSquare =
+        match move.Type with
+        | DoublePawnPush -> Some ({ Row = (move.From.Row + move.To.Row) / 2; Col = move.From.Col })
+        | _ -> None
+
+    let whiteCastlingRights =
+        match position.ToMove with
+        | Black -> position.WhiteCastlingRights
+        | White ->
+            match pieceSideOpt, move.From with
+            | Some (King, _), _ -> CastlingRights.neither
+            | Some (Rook, _), sq when sq = h1 -> { position.WhiteCastlingRights with KingSide = false }
+            | Some (Rook, _), sq when sq = a1 -> { position.WhiteCastlingRights with QueenSide = false }
+            | _ -> position.WhiteCastlingRights
+    
+    let blackCastlingRights =
+        match position.ToMove with
+        | White -> position.BlackCastlingRights
+        | Black ->
+            match pieceSideOpt, move.From with
+            | Some (King, _), _ -> CastlingRights.neither
+            | Some (Rook, _), sq when sq = h8 -> { position.BlackCastlingRights with KingSide = false }
+            | Some (Rook, _), sq when sq = a8 -> { position.BlackCastlingRights with QueenSide = false }
+            | _ -> position.BlackCastlingRights
+    
+    let clone = position.Board.Clone()
+
+    let updatedBoard =
+        match move.Type with
+        | CastleKingSide when position.ToMove = White -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.To)).Set(h1, None).Set(f1, Some (Rook, White))
+        | CastleKingSide when position.ToMove = Black -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.To)).Set(h8, None).Set(f8, Some (Rook, Black))
+        | CastleQueenSide when position.ToMove = White -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.To)).Set(a1, None).Set(d1, Some (Rook, White))
+        | CastleQueenSide when position.ToMove = Black -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.To)).Set(a8, None).Set(d8, Some (Rook, White))
+        | EnPassantCapture when position.ToMove = White -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.To)).Set({ Row = move.To.Row - 1; Col = move.To.Col }, None)
+        | EnPassantCapture when position.ToMove = Black -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.To)).Set({ Row = move.To.Row + 1; Col = move.To.Col }, None)
+        | Promotion promoteTo | CapturePromotion (_, promoteTo) -> clone.Set(move.From, None).Set(move.To, Some (promoteTo.toPiece(), position.ToMove))
+        | _ -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.To))
+
+    {
+        Board = updatedBoard
+        ToMove = position.ToMove.Opposite()
+        WhiteCastlingRights = whiteCastlingRights
+        BlackCastlingRights = blackCastlingRights
+        EnPassantTargetSquare = enPassantTargetSquare
+        HalfMoveClock = halfMoveClock
+        FullMoveCount = fullMoveCount
+    }
