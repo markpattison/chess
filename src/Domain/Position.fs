@@ -123,6 +123,13 @@ type Board = | Board of ((Piece * Side) option [,]) with
     member this.Get(square) = match this with | Board board -> board.[square.Row, square.Col]
     member this.Set(square, pieceSide) = match this with | Board board -> board.[square.Row, square.Col] <- pieceSide; this
     member this.Clone() = match this with | Board board -> Array2D.copy board |> Board
+    member this.KingPosition(side) =
+        let (Board board) = this
+        let mutable square = { Row = -1; Col = -1 }
+        for row in 0 .. 7 do
+            for col in 0 .. 7 do
+                if board.[row, col] = Some (King, side) then square <- { Row = row; Col = col }
+        if square.Row = -1 then failwith "King not found" else square
 
 type CastlingRights =
     {

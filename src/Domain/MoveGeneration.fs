@@ -86,7 +86,7 @@ let private isAttackedOnRankAndFile position bySide square =
     rookDirections |> List.exists (isAttackedByRankAndFilePiece position bySide square)
 
 let private isAttackedByPawn position bySide square =
-    let pawnRow = match bySide with | White -> square.Row + 1 | Black -> square.Row - 1
+    let pawnRow = match bySide with | White -> square.Row - 1 | Black -> square.Row + 1
 
     (square.Col > 0 && pawnRow >= 0 && pawnRow <= 7 && position.Board.Get({ Row = pawnRow; Col = square.Col - 1}) = Some (Pawn, bySide))
     || (square.Col < 7 && pawnRow >= 0 && pawnRow <= 7 && position.Board.Get({ Row = pawnRow; Col = square.Col + 1}) = Some (Pawn, bySide))
@@ -345,14 +345,14 @@ let makeMoveUnchecked position move =
 
     let updatedBoard =
         match move.Type with
-        | CastleKingSide when position.ToMove = White -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.To)).Set(h1, None).Set(f1, Some (Rook, White))
-        | CastleKingSide when position.ToMove = Black -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.To)).Set(h8, None).Set(f8, Some (Rook, Black))
-        | CastleQueenSide when position.ToMove = White -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.To)).Set(a1, None).Set(d1, Some (Rook, White))
-        | CastleQueenSide when position.ToMove = Black -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.To)).Set(a8, None).Set(d8, Some (Rook, White))
-        | EnPassantCapture when position.ToMove = White -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.To)).Set({ Row = move.To.Row - 1; Col = move.To.Col }, None)
-        | EnPassantCapture when position.ToMove = Black -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.To)).Set({ Row = move.To.Row + 1; Col = move.To.Col }, None)
+        | CastleKingSide when position.ToMove = White -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.From)).Set(h1, None).Set(f1, Some (Rook, White))
+        | CastleKingSide when position.ToMove = Black -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.From)).Set(h8, None).Set(f8, Some (Rook, Black))
+        | CastleQueenSide when position.ToMove = White -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.From)).Set(a1, None).Set(d1, Some (Rook, White))
+        | CastleQueenSide when position.ToMove = Black -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.From)).Set(a8, None).Set(d8, Some (Rook, White))
+        | EnPassantCapture when position.ToMove = White -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.From)).Set({ Row = move.To.Row - 1; Col = move.To.Col }, None)
+        | EnPassantCapture when position.ToMove = Black -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.From)).Set({ Row = move.To.Row + 1; Col = move.To.Col }, None)
         | Promotion promoteTo | CapturePromotion (_, promoteTo) -> clone.Set(move.From, None).Set(move.To, Some (promoteTo.toPiece(), position.ToMove))
-        | _ -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.To))
+        | _ -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.From))
 
     {
         Board = updatedBoard
@@ -363,3 +363,34 @@ let makeMoveUnchecked position move =
         HalfMoveClock = halfMoveClock
         FullMoveCount = fullMoveCount
     }
+
+let isInCheck position side =
+    let kingSquare = position.Board.KingPosition(side)
+    isAttackedBy position (side.Opposite()) kingSquare
+
+let isMoveLegal position move =
+    let updatedPosition = makeMoveUnchecked position move
+    not (isInCheck updatedPosition position.ToMove)
+
+let allLegalMoves position =
+    let (Board board) = position.Board
+
+    let potentialMoves = [
+        for row in 0 .. 7 do
+            for col in 0 .. 7 do
+                match board.[row, col] with
+                | Some (piece, side) when side = position.ToMove ->
+                    let square = { Row = row; Col = col }
+                    match piece with
+                    | Pawn -> yield! potentialPawnMoves square position
+                    | Knight -> yield! potentialKnightMoves square position
+                    | Bishop -> yield! potentialBishopMoves square position
+                    | Rook -> yield! potentialRookMoves square position
+                    | Queen -> yield! potentialQueenMoves square position
+                    | King -> yield! potentialKingMoves square position
+                | _ -> ()
+    ]
+
+    let legalMoves = potentialMoves |> List.filter (isMoveLegal position)
+
+    legalMoves
