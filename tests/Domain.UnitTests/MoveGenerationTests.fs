@@ -235,123 +235,6 @@ let testKingOnEdge square =
         Expect.hasLength moves 5 "King mid-edge should have 5 moves"        
     }
 
-let testCastleKingSide =
-    test "Can castle kingside" {
-        let position = positionWithPieces [ King, White, e1; Rook, White, h1 ] |> withCastlingRights White { KingSide = true; QueenSide = false }
-
-        let moves = potentialKingMoves e1 position
-
-        Expect.contains moves { From = e1; To = g1; Type = CastleKingSide } "King can castle kingside"
-    }
-
-let testCannotCastleKingSideWithNoCastlingRights =
-    test "Cannot castle kingside with no castling rights" {
-        let position = positionWithPieces [ King, White, e1; Rook, White, h1 ] |> withCastlingRights White { KingSide = false; QueenSide = true }
-
-        let moves = potentialKingMoves e1 position
-
-        Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleKingSide)) "Cannot castle kingside with no castling rights"
-    }
-
-let testCannotCastleKingSideWhenF1Occupied =
-    test "Cannot castle kingside when f1 occupied" {
-        let position = positionWithPieces [ King, White, e1; Rook, White, h1; Bishop, White, f1 ] |> withCastlingRights White { KingSide = true; QueenSide = false }
-
-        let moves = potentialKingMoves e1 position
-
-        Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleKingSide)) "Cannot castle kingside when f1 occupied"        
-    }
-
-let testCannotCastleKingSideWhenG1Occupied =
-    test "Cannot castle kingside when g1 occupied" {
-        let position = positionWithPieces [ King, White, e1; Rook, White, h1; Knight, White, g1 ] |> withCastlingRights White { KingSide = true; QueenSide = false }
-
-        let moves = potentialKingMoves e1 position
-
-        Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleKingSide)) "Cannot castle kingside when g1 occupied"        
-    }
-
-let testCannotCastleKingSideWhenInCheck =
-    test "Cannot castle kingside when in check" {
-        let position = positionWithPieces [ King, White, e1; Rook, White, h1; Rook, Black, e8 ] |> withCastlingRights White { KingSide = true; QueenSide = false }
-
-        let moves = potentialKingMoves e1 position
-
-        Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleKingSide)) "Cannot castle kingside when in check"
-    }
-
-let testCannotCastleKingSideThroughCheck =
-    test "Cannot castle kingside through check" {
-        let position = positionWithPieces [ King, White, e1; Rook, White, h1; Rook, Black, f8 ] |> withCastlingRights White { KingSide = true; QueenSide = false }
-
-        let moves = potentialKingMoves e1 position
-
-        Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleKingSide)) "Cannot castle kingside through check"
-    }
-
-let testCastleQueenSide =
-    test "Can castle queenside" {
-        let position = positionWithPieces [ King, White, e1; Rook, White, a1 ] |> withCastlingRights White { KingSide = false; QueenSide = true }
-
-        let moves = potentialKingMoves e1 position
-
-        Expect.contains moves { From = e1; To = c1; Type = CastleQueenSide } "King can castle queenside"
-    }
-
-let testCannotCastleQueenSideWithNoCastlingRights =
-    test "Cannot castle queenside with no castling rights" {
-        let position = positionWithPieces [ King, White, e1; Rook, White, a1 ] |> withCastlingRights White { KingSide = true; QueenSide = false }
-
-        let moves = potentialKingMoves e1 position
-
-        Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleQueenSide)) "Cannot castle queenside with no castling rights"
-    }
-
-let testCannotCastleQueenSideWhenD1Occupied =
-    test "Cannot castle queenside when d1 occupied" {
-        let position = positionWithPieces [ King, White, e1; Rook, White, a1; Queen, White, d1 ] |> withCastlingRights White { KingSide = false; QueenSide = true }
-
-        let moves = potentialKingMoves e1 position
-
-        Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleQueenSide)) "Cannot castle queenside when f1 occupied"        
-    }
-
-let testCannotCastleQueenSideWhenC1Occupied =
-    test "Cannot castle queenside when c1 occupied" {
-        let position = positionWithPieces [ King, White, e1; Rook, White, a1; Bishop, White, c1 ] |> withCastlingRights White { KingSide = false; QueenSide = true }
-
-        let moves = potentialKingMoves e1 position
-
-        Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleQueenSide)) "Cannot castle queenside when g1 occupied"        
-    }
-
-let testCannotCastleQueenSideWhenB1Occupied =
-    test "Cannot castle queenside when b1 occupied" {
-        let position = positionWithPieces [ King, White, e1; Rook, White, a1; Knight, White, b1 ] |> withCastlingRights White { KingSide = false; QueenSide = true }
-
-        let moves = potentialKingMoves e1 position
-
-        Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleQueenSide)) "Cannot castle queenside when b1 occupied"        
-    }
-
-let testCannotCastleQueenSideWhenInCheck =
-    test "Cannot castle queenside when in check" {
-        let position = positionWithPieces [ King, White, e1; Rook, White, a1; Rook, Black, e8 ] |> withCastlingRights White { KingSide = false; QueenSide = true }
-
-        let moves = potentialKingMoves e1 position
-
-        Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleQueenSide)) "Cannot castle queenside when in check"
-    }
-
-let testCannotCastleQueenSideThroughCheck =
-    test "Cannot castle queenside through check" {
-        let position = positionWithPieces [ King, White, e1; Rook, White, a1; Rook, Black, d8 ] |> withCastlingRights White { KingSide = false; QueenSide = true }
-
-        let moves = potentialKingMoves e1 position
-
-        Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleQueenSide)) "Cannot castle queenside when in check"
-    }
-
 let kingTests =
     testList "King" [
         test "Middle" {
@@ -363,21 +246,112 @@ let kingTests =
             Expect.hasLength moves 8 "King in middle should have 8 moves"
         }
 
+        test "Can castle kingside" {
+            let position = positionWithPieces [ King, White, e1; Rook, White, h1 ] |> withCastlingRights White { KingSide = true; QueenSide = false }
+
+            let moves = potentialKingMoves e1 position
+
+            Expect.contains moves { From = e1; To = g1; Type = CastleKingSide } "King can castle kingside"
+        }
+
+        test "Cannot castle kingside with no castling rights" {
+            let position = positionWithPieces [ King, White, e1; Rook, White, h1 ] |> withCastlingRights White { KingSide = false; QueenSide = true }
+
+            let moves = potentialKingMoves e1 position
+
+            Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleKingSide)) "Cannot castle kingside with no castling rights"
+        }
+
+        test "Cannot castle kingside when f1 occupied" {
+            let position = positionWithPieces [ King, White, e1; Rook, White, h1; Bishop, White, f1 ] |> withCastlingRights White { KingSide = true; QueenSide = false }
+
+            let moves = potentialKingMoves e1 position
+
+            Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleKingSide)) "Cannot castle kingside when f1 occupied"        
+        }
+
+        test "Cannot castle kingside when g1 occupied" {
+            let position = positionWithPieces [ King, White, e1; Rook, White, h1; Knight, White, g1 ] |> withCastlingRights White { KingSide = true; QueenSide = false }
+
+            let moves = potentialKingMoves e1 position
+
+            Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleKingSide)) "Cannot castle kingside when g1 occupied"        
+        }
+
+        test "Cannot castle kingside when in check" {
+            let position = positionWithPieces [ King, White, e1; Rook, White, h1; Rook, Black, e8 ] |> withCastlingRights White { KingSide = true; QueenSide = false }
+
+            let moves = potentialKingMoves e1 position
+
+            Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleKingSide)) "Cannot castle kingside when in check"
+        }
+
+        test "Cannot castle kingside through check" {
+            let position = positionWithPieces [ King, White, e1; Rook, White, h1; Rook, Black, f8 ] |> withCastlingRights White { KingSide = true; QueenSide = false }
+
+            let moves = potentialKingMoves e1 position
+
+            Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleKingSide)) "Cannot castle kingside through check"
+        }
+
+        test "Can castle queenside" {
+            let position = positionWithPieces [ King, White, e1; Rook, White, a1 ] |> withCastlingRights White { KingSide = false; QueenSide = true }
+
+            let moves = potentialKingMoves e1 position
+
+            Expect.contains moves { From = e1; To = c1; Type = CastleQueenSide } "King can castle queenside"
+        }
+
+        test "Cannot castle queenside with no castling rights" {
+            let position = positionWithPieces [ King, White, e1; Rook, White, a1 ] |> withCastlingRights White { KingSide = true; QueenSide = false }
+
+            let moves = potentialKingMoves e1 position
+
+            Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleQueenSide)) "Cannot castle queenside with no castling rights"
+        }
+
+        test "Cannot castle queenside when d1 occupied" {
+            let position = positionWithPieces [ King, White, e1; Rook, White, a1; Queen, White, d1 ] |> withCastlingRights White { KingSide = false; QueenSide = true }
+
+            let moves = potentialKingMoves e1 position
+
+            Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleQueenSide)) "Cannot castle queenside when d1 occupied"        
+        }
+
+        test "Cannot castle queenside when c1 occupied" {
+            let position = positionWithPieces [ King, White, e1; Rook, White, a1; Bishop, White, c1 ] |> withCastlingRights White { KingSide = false; QueenSide = true }
+
+            let moves = potentialKingMoves e1 position
+
+            Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleQueenSide)) "Cannot castle queenside when c1 occupied"        
+        }
+
+        test "Cannot castle queenside when b1 occupied" {
+            let position = positionWithPieces [ King, White, e1; Rook, White, a1; Knight, White, b1 ] |> withCastlingRights White { KingSide = false; QueenSide = true }
+
+            let moves = potentialKingMoves e1 position
+
+            Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleQueenSide)) "Cannot castle queenside when b1 occupied"        
+        }
+
+        test "Cannot castle queenside when in check" {
+            let position = positionWithPieces [ King, White, e1; Rook, White, a1; Rook, Black, e8 ] |> withCastlingRights White { KingSide = false; QueenSide = true }
+
+            let moves = potentialKingMoves e1 position
+
+            Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleQueenSide)) "Cannot castle queenside when in check"
+        }
+
+        test "Cannot castle queenside through check" {
+            let position = positionWithPieces [ King, White, e1; Rook, White, a1; Rook, Black, d8 ] |> withCastlingRights White { KingSide = false; QueenSide = true }
+
+            let moves = potentialKingMoves e1 position
+
+            Expect.isEmpty (moves |> List.filter (fun m -> m.Type = CastleQueenSide)) "Cannot castle queenside through check"
+        }
+
         corners |> List.map testKingInCorner |> testList "Corner"
         midEdges |> List.map testKingOnEdge |> testList "Mid-edge"
-        testCastleKingSide
-        testCannotCastleKingSideWithNoCastlingRights
-        testCannotCastleKingSideWhenF1Occupied
-        testCannotCastleKingSideWhenG1Occupied
-        testCannotCastleKingSideWhenInCheck
-        testCannotCastleKingSideThroughCheck
-        testCastleQueenSide
-        testCannotCastleQueenSideWithNoCastlingRights
-        testCannotCastleQueenSideWhenD1Occupied
-        testCannotCastleQueenSideWhenC1Occupied
-        testCannotCastleQueenSideWhenB1Occupied
-        testCannotCastleQueenSideWhenInCheck
-        testCannotCastleQueenSideThroughCheck
     ]
 
 let testKnightInCorner square =
