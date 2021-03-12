@@ -3,7 +3,42 @@ module Chess.Domain.MoveGeneration
 open Position
 open Move
 
-let captureOrOwnPiece position fromSquare toSquare =
+let private potentialKnightSquares square =
+    let row, col = square.Row, square.Col
+
+    [
+        if row < 6 && col < 7 then { Row = row + 2; Col = col + 1 }
+        if row < 7 && col < 6 then { Row = row + 1; Col = col + 2 }
+        if row > 0 && col < 6 then { Row = row - 1; Col = col + 2 }
+        if row > 1 && col < 7 then { Row = row - 2; Col = col + 1 }
+        if row > 1 && col > 0 then { Row = row - 2; Col = col - 1 }
+        if row > 0 && col > 1 then { Row = row - 1; Col = col - 2 }
+        if row < 7 && col > 1 then { Row = row + 1; Col = col - 2 }
+        if row < 6 && col > 0 then { Row = row + 2; Col = col - 1 }
+    ]
+
+let private potentialKingSquares square =
+    let row, col = square.Row, square.Col
+
+    [
+        if row > 0            then { Row = row - 1; Col = col     }
+        if row > 0 && col > 0 then { Row = row - 1; Col = col - 1 }
+        if            col > 0 then { Row = row;     Col = col - 1 }
+        if row < 7 && col > 0 then { Row = row + 1; Col = col - 1 }
+        if row < 7            then { Row = row + 1; Col = col     }
+        if row < 7 && col < 7 then { Row = row + 1; Col = col + 1 }
+        if            col < 7 then { Row = row;     Col = col + 1 }
+        if row > 0 && col < 7 then { Row = row - 1; Col = col + 1 }
+    ]
+
+let private bishopDirections = [ (1, 1); (1, -1); (-1, -1); (-1, 1) ]
+let private rookDirections = [ (1, 0); (-1, 0); (0, 1); (0, -1) ]
+let private queenDirections = bishopDirections @ rookDirections
+
+let private (|OnBoard|Outside|) square =
+    if square.Row >= 0 && square.Row <= 7 && square.Col >= 0 && square.Col <= 7 then OnBoard else Outside
+
+let private captureOrOwnPiece position fromSquare toSquare =
     let (Board board) = position.Board
     let otherSide = position.ToMove.Opposite()
 
@@ -12,46 +47,129 @@ let captureOrOwnPiece position fromSquare toSquare =
     | Some (piece, side) when side = otherSide -> Some { From = fromSquare; To = toSquare; Type = Capture piece }
     | _ -> None
 
+let private isAttackedByKnight position bySide square =
+    potentialKnightSquares square |> List.exists (fun sq -> position.Board.Get(sq) = Some (Knight, bySide))
+
+let private isAttackedByKing position bySide square =
+    potentialKingSquares square |> List.exists (fun sq -> position.Board.Get(sq) = Some (King, bySide))
+
+let private isAttackedByDiagonalPiece position bySide square (rowInc, colInc) =
+    let rec isAttackedDiagonally sq =
+        let nextSquare = { Row = sq.Row + rowInc; Col = sq.Col + colInc }
+        match nextSquare with
+        | Outside -> false
+        | OnBoard ->
+            match position.Board.Get(nextSquare) with
+            | Some (piece, side) when side = bySide && (piece = Queen || piece = Bishop) -> true
+            | Some _ -> false
+            | None -> isAttackedDiagonally nextSquare
+    
+    isAttackedDiagonally square
+
+let private isAttackedOnDiagonal position bySide square =
+    bishopDirections |> List.exists (isAttackedByDiagonalPiece position bySide square)
+
+let private isAttackedByRankAndFilePiece position bySide square (rowInc, colInc) =
+    let rec isAttackedRankAndFile sq =
+        let nextSquare = { Row = sq.Row + rowInc; Col = sq.Col + colInc }
+        match nextSquare with
+        | Outside -> false
+        | OnBoard ->
+            match position.Board.Get(nextSquare) with
+            | Some (piece, side) when side = bySide && (piece = Queen || piece = Rook) -> true
+            | Some _ -> false
+            | None -> isAttackedRankAndFile nextSquare
+    
+    isAttackedRankAndFile square
+
+let private isAttackedOnRankAndFile position bySide square =
+    rookDirections |> List.exists (isAttackedByRankAndFilePiece position bySide square)
+
+let private isAttackedByPawn position bySide square =
+    let pawnRow = match bySide with | White -> square.Row + 1 | Black -> square.Row - 1
+
+    (square.Col > 0 && pawnRow >= 0 && pawnRow <= 7 && position.Board.Get({ Row = pawnRow; Col = square.Col - 1}) = Some (Pawn, bySide))
+    || (square.Col < 7 && pawnRow >= 0 && pawnRow <= 7 && position.Board.Get({ Row = pawnRow; Col = square.Col + 1}) = Some (Pawn, bySide))
+
+let private isAttackedBy position bySide square =
+    isAttackedByKnight position bySide square
+    || isAttackedOnRankAndFile position bySide square
+    || isAttackedOnDiagonal position bySide square
+    || isAttackedByPawn position bySide square
+    || isAttackedByKing position bySide square
+
 let potentialKingMoves square position =
-    let row, col = square.Row, square.Col
-
     let potentialSquares =
-        [
-            if row > 0            then { Row = row - 1; Col = col     }
-            if row > 0 && col > 0 then { Row = row - 1; Col = col - 1 }
-            if            col > 0 then { Row = row;     Col = col - 1 }
-            if row < 7 && col > 0 then { Row = row + 1; Col = col - 1 }
-            if row < 7            then { Row = row + 1; Col = col     }
-            if row < 7 && col < 7 then { Row = row + 1; Col = col + 1 }
-            if            col < 7 then { Row = row;     Col = col + 1 }
-            if row > 0 && col < 7 then { Row = row - 1; Col = col + 1 }
-        ]
-    
-    potentialSquares |> List.choose (captureOrOwnPiece position square)
+        potentialKingSquares square
+        |> List.map (captureOrOwnPiece position square)
 
+    let castleWhiteKingSide =
+        if position.ToMove = White
+            && square = e1
+            && position.Board.Get(e1) = Some (King, White)
+            && position.Board.Get(f1) = None
+            && position.Board.Get(g1) = None
+            && position.Board.Get(h1) = Some (Rook, White)
+            && position.WhiteCastlingRights.KingSide
+            && not (isAttackedBy position Black e1)
+            && not (isAttackedBy position Black f1)
+        then
+            Some { From = e1; To = g1; Type = CastleKingSide } 
+        else
+            None
+    
+    let castleWhiteQueenSide =
+        if position.ToMove = White
+            && square = e1
+            && position.Board.Get(e1) = Some (King, White)
+            && position.Board.Get(d1) = None
+            && position.Board.Get(c1) = None
+            && position.Board.Get(b1) = None
+            && position.Board.Get(a1) = Some (Rook, White)
+            && position.WhiteCastlingRights.QueenSide
+            && not (isAttackedBy position Black e1)
+            && not (isAttackedBy position Black d1)
+        then
+            Some { From = e1; To = c1; Type = CastleQueenSide }
+        else
+            None
+
+    let castleBlackKingSide =
+        if position.ToMove = Black
+            && square = e8
+            && position.Board.Get(e8) = Some (King, Black)
+            && position.Board.Get(f8) = None
+            && position.Board.Get(g8) = None
+            && position.Board.Get(h8) = Some (Rook, Black)
+            && position.BlackCastlingRights.KingSide
+            && not (isAttackedBy position White e8)
+            && not (isAttackedBy position White f8)
+        then
+            Some { From = e8; To = g8; Type = CastleKingSide } 
+        else
+            None
+    
+    let castleBlackQueenSide =
+        if position.ToMove = Black
+            && square = e8
+            && position.Board.Get(e8) = Some (King, Black)
+            && position.Board.Get(d8) = None
+            && position.Board.Get(c8) = None
+            && position.Board.Get(b8) = None
+            && position.Board.Get(a8) = Some (Rook, Black)
+            && position.BlackCastlingRights.QueenSide
+            && not (isAttackedBy position White e8)
+            && not (isAttackedBy position White d8)
+        then
+            Some { From = e8; To = c8; Type = CastleQueenSide }
+        else
+            None
+                
+    [ castleWhiteKingSide; castleWhiteQueenSide; castleBlackKingSide; castleBlackQueenSide ] @ potentialSquares
+    |> List.choose id
+    
 let potentialKnightMoves square position =
-    let row, col = square.Row, square.Col
-
-    let potentialSquares =
-        [
-            if row < 6 && col < 7 then { Row = row + 2; Col = col + 1 }
-            if row < 7 && col < 6 then { Row = row + 1; Col = col + 2 }
-            if row > 0 && col < 6 then { Row = row - 1; Col = col + 2 }
-            if row > 1 && col < 7 then { Row = row - 2; Col = col + 1 }
-            if row > 1 && col > 0 then { Row = row - 2; Col = col - 1 }
-            if row > 0 && col > 1 then { Row = row - 1; Col = col - 2 }
-            if row < 7 && col > 1 then { Row = row + 1; Col = col - 2 }
-            if row < 6 && col > 0 then { Row = row + 2; Col = col - 1 }
-        ]
-    
-    potentialSquares |> List.choose (captureOrOwnPiece position square)
-
-let private bishopDirections = [ (1, 1); (1, -1); (-1, -1); (-1, 1) ]
-let private rookDirections = [ (1, 0); (-1, 0); (0, 1); (0, -1) ]
-let private queenDirections = bishopDirections @ rookDirections
-
-let (|OnBoard|Outside|) square =
-    if square.Row >= 0 && square.Row <= 7 && square.Col >= 0 && square.Col <= 7 then OnBoard else Outside
+    potentialKnightSquares square |> List.choose (captureOrOwnPiece position square)
 
 let private potentialMovesForDirection fromSquare position (rowInc, colInc) =
     let otherSide = position.ToMove.Opposite()
