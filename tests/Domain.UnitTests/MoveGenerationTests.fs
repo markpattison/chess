@@ -485,70 +485,28 @@ let queenTests =
         midEdges |> List.map testQueenOnEdge |> testList "Mid-edge"
     ]
 
-let allMoveTests =
-    testList "All moves" [
-        test "Initial position has 20 legal moves" {
-            let position = getInitialPosition()
+// see https://www.chessprogramming.org/Perft_Results
 
-            let moves = allLegalMoves position
-
-            Expect.hasLength moves 20 "Initial position should have 20 legal moves"
-        }
-
-        test "Second test position has 48 legal moves" {
-            // Position 2 from https://www.chessprogramming.org/Perft_Results
-            let position = fromFen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1")
-
-            let moves = allLegalMoves position
-
-            Expect.hasLength moves 48 "Position should have 48 legal moves"
-        }
-
-        test "Third test position has 14 legal moves" {
-            // Position 3 from https://www.chessprogramming.org/Perft_Results
-            let position = fromFen("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1")
-
-            let moves = allLegalMoves position
-
-            Expect.hasLength moves 14 "Position should have 14 legal moves"
-        }
-
-        test "Fourth test position has 6 legal moves" {
-            // Position 4 from https://www.chessprogramming.org/Perft_Results
-            let position = fromFen("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1")
-
-            let moves = allLegalMoves position
-
-            Expect.hasLength moves 6 "Position should have 6 legal moves"
-        }
-
-        test "Mirrored fourth test position has 6 legal moves" {
-            // Mirrored position 4 from https://www.chessprogramming.org/Perft_Results
-            let position = fromFen("r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1")
-
-            let moves = allLegalMoves position
-
-            Expect.hasLength moves 6 "Position should have 6 legal moves"
-        }
-
-        test "Fifth test position has 44 legal moves" {
-            // Position 5 from https://www.chessprogramming.org/Perft_Results
-            let position = fromFen("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8")
-
-            let moves = allLegalMoves position
-
-            Expect.hasLength moves 44 "Position should have 44 legal moves"
-        }
-        
-        test "Sixth test position has 46 legal moves" {
-            // Position 6 from https://www.chessprogramming.org/Perft_Results
-            let position = fromFen("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10")
-
-            let moves = allLegalMoves position
-
-            Expect.hasLength moves 46 "Position should have 46 legal moves"
-        }
+let testPositions =
+    [
+        "Initial position", getInitialPosition(), 20
+        "Position 2", fromFen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"), 48
+        "Position 3", fromFen("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1"), 14
+        "Position 4", fromFen("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"), 6
+        "Position 4 mirrored", fromFen("r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1"), 6
+        "Position 5", fromFen("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8"), 44
+        "Position 6", fromFen("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10"), 46
     ]
+
+let testNumberOfLegalMoves (name, position, expected) =
+    test name {
+        let moves = allLegalMoves position
+
+        Expect.hasLength moves expected (sprintf "Initial position should have %i legal moves" expected)
+    }
+
+let allMoveTests =
+    testPositions |> List.map testNumberOfLegalMoves |> testList "Correct number of legal moves"
 
 let tests =
     testList "Potential move generation tests" [
