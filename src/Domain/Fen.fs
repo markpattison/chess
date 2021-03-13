@@ -38,9 +38,9 @@ let private toCastlingAbility position =
         "-"
     else
         (if position.WhiteCastlingRights.KingSide then "K" else "") +
-        (if position.WhiteCastlingRights.KingSide then "Q" else "") +
+        (if position.WhiteCastlingRights.QueenSide then "Q" else "") +
         (if position.BlackCastlingRights.KingSide then "k" else "") +
-        (if position.BlackCastlingRights.KingSide then "q" else "")
+        (if position.BlackCastlingRights.QueenSide then "q" else "")
 
 let private toEnPassantTargetSquare (squareOpt: Square option) =
     match squareOpt with
