@@ -348,7 +348,7 @@ let makeMoveUnchecked position move =
         | CastleKingSide when position.ToMove = White -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.From)).Set(h1, None).Set(f1, Some (Rook, White))
         | CastleKingSide when position.ToMove = Black -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.From)).Set(h8, None).Set(f8, Some (Rook, Black))
         | CastleQueenSide when position.ToMove = White -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.From)).Set(a1, None).Set(d1, Some (Rook, White))
-        | CastleQueenSide when position.ToMove = Black -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.From)).Set(a8, None).Set(d8, Some (Rook, White))
+        | CastleQueenSide when position.ToMove = Black -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.From)).Set(a8, None).Set(d8, Some (Rook, Black))
         | EnPassantCapture when position.ToMove = White -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.From)).Set({ Row = move.To.Row - 1; Col = move.To.Col }, None)
         | EnPassantCapture when position.ToMove = Black -> clone.Set(move.From, None).Set(move.To, position.Board.Get(move.From)).Set({ Row = move.To.Row + 1; Col = move.To.Col }, None)
         | Promotion promoteTo | CapturePromotion (_, promoteTo) -> clone.Set(move.From, None).Set(move.To, Some (promoteTo.toPiece(), position.ToMove))
