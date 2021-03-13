@@ -403,3 +403,20 @@ let rec perft depth position =
         |> allLegalMoves
         |> List.map (makeMoveUnchecked position)
         |> List.sumBy (perft (depth - 1))
+
+// same as perft but prints out divisions at first level
+let perftdiv depth position =
+    if depth <= 0 then
+        1
+    else
+        let nextPositions =
+            position
+            |> allLegalMoves
+            |> List.map (makeMoveUnchecked position)
+        
+        let nextPerfts =
+            nextPositions
+            |> List.map (fun p -> p, perft (depth - 1) p)
+        
+        nextPerfts |> List.iter (fun (p, perfSplit) -> printfn "%s %i" (Fen.toFen(p)) perfSplit)
+        nextPerfts |> List.sumBy snd
