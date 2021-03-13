@@ -513,6 +513,17 @@ let testAllPerft (name, position, expectedResults) =
 let allPerftTests =
     perftTests |> List.map testAllPerft |> testList "Perft"
 
+let debugTest =
+    ptest "Debug" {
+        let position = fromFen "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"
+        let moves = allLegalMoves position
+
+        moves |> List.iter (fun m -> printfn "%s %s %s" (m.From.toAlgebraic()) (m.To.toAlgebraic()) (toFen(makeMoveUnchecked position m)))
+
+        let result = perft 1 position
+        Expect.equal result 48 "Position should have 28 moves"
+    }
+
 let tests =
     testList "Potential move generation tests" [
         pawnTests
@@ -522,4 +533,5 @@ let tests =
         rookTests
         queenTests
         allPerftTests
+        debugTest
     ]
