@@ -510,8 +510,8 @@ let slowPerfTestData =
     [
         perfTestPosition1, [ 5, 4865609 ]
         perfTestPosition2, [ 4, 4085603 ]
-        perfTestPosition3, [ 5, 674624 ]
-        perfTestPosition4, [ 4, 422333 ]
+        perfTestPosition3, [ 5, 674624; 6, 11030083 ]
+        perfTestPosition4, [ 4, 422333; 5, 15833292 ]
         perfTestPosition4Mirrored, [ 4, 422333 ]
         perfTestPosition5, [ 4, 2103487 ]
         perfTestPosition6, [ 4, 3894594 ]        
@@ -538,7 +538,7 @@ let testSlowPerfList ((name, position), expectedResults) =
     |> testList name
 
 let slowPerftTests =
-    slowPerfTestData |> List.map testSlowPerfList |> ptestList "Slow perft"
+    slowPerfTestData |> List.map testSlowPerfList |> ftestList "Slow perft"
 
 let debugTest =
     ptest "Debug" {
