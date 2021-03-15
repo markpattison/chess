@@ -5,3 +5,4 @@ framework: netcoreapp5.0
 
 nuget FSharp.Core
 nuget Expecto
+nuget BenchmarkDotNet
