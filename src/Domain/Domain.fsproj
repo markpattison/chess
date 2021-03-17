@@ -4,10 +4,10 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Position.fs" />
-    <Compile Include="Move.fs" />
-    <Compile Include="Fen.fs" />
-    <Compile Include="MoveGeneration.fs" />
+    <Compile Include="V1\Position.fs" />
+    <Compile Include="V1\Move.fs" />
+    <Compile Include="V1\Fen.fs" />
+    <Compile Include="V1\MoveGeneration.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
