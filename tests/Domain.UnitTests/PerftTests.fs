@@ -28,7 +28,7 @@ let perftTestData =
         perftTestPosition6, [ 46; 2079; 89890 ]
     ]
 
-let slowPerfTestData =
+let slowPerftTestData =
     [
         perftTestPosition1, [ 5, 4865609 ]
         perftTestPosition2, [ 4, 4085603 ]
@@ -36,7 +36,7 @@ let slowPerfTestData =
         perftTestPosition4, [ 4, 422333; 5, 15833292 ]
         perftTestPosition4Mirrored, [ 4, 422333 ]
         perftTestPosition5, [ 4, 2103487 ]
-        perftTestPosition6, [ 4, 3894594 ]        
+        perftTestPosition6, [ 4, 3894594 ]
     ]
 
 let testPerft name position depth expectedPerft =
@@ -60,7 +60,7 @@ let testSlowPerfList ((name, position), expectedResults) =
     |> testList name
 
 let slowPerftTests =
-    slowPerfTestData |> List.map testSlowPerfList |> ptestList "Slow perft" // usually set to pending
+    slowPerftTestData |> List.map testSlowPerfList |> ptestList "Slow perft" // usually set to pending
 
 let debugTest =
     ptest "Debug" {
