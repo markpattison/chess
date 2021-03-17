@@ -1,4 +1,4 @@
-module Chess.Domain.Fen
+module Chess.Domain.V1.Fen
 
 open System
 

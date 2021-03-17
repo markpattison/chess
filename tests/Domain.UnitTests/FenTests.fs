@@ -2,8 +2,8 @@ module Chess.Domain.UnitTests.FenTests
 
 open Expecto
 
-open Chess.Domain.Position
-open Chess.Domain.Fen
+open Chess.Domain.V1.Position
+open Chess.Domain.V1.Fen
 
 let tests =
     testList "FEN tests" [

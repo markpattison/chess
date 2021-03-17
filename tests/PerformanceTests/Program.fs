@@ -4,9 +4,6 @@ open System
 open BenchmarkDotNet.Attributes
 open BenchmarkDotNet.Running
 
-open Chess.Domain.Fen
-open Chess.Domain.MoveGeneration
-
 type PerftTestData =
     {
         Name: string
@@ -28,12 +25,12 @@ type PerftBenchmarks() =
     [<ParamsSource("GetData")>]
     val mutable PerftData : PerftTestData
 
-    [<Benchmark>]
-    member this.Original() =
+    [<Benchmark(Baseline = true)>]
+    member this.V1() =
         let data = this.PerftData
 
-        let position = fromFen data.Fen
-        let result = perft data.Depth position
+        let position = V1.Fen.fromFen data.Fen
+        let result = V1.MoveGeneration.perft data.Depth position
 
         if result <> data.Expected then failwithf "Result not as expected for %O" data
 

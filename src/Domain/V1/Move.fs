@@ -1,4 +1,4 @@
-module Chess.Domain.Move
+module Chess.Domain.V1.Move
 
 open Position
 

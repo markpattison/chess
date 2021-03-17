@@ -2,7 +2,7 @@ module Chess.Domain.UnitTests.PositionTests
 
 open Expecto
 
-open Chess.Domain.Position
+open Chess.Domain.V1.Position
 
 let tests =
     testList "Position tests" [

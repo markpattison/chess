@@ -1,4 +1,4 @@
-module Chess.Domain.Position
+module Chess.Domain.V1.Position
 
 open System
 

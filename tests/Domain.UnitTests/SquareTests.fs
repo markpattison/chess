@@ -2,7 +2,7 @@ module Chess.Domain.UnitTests.SquareTests
 
 open Expecto
 
-open Chess.Domain.Position
+open Chess.Domain.V1.Position
 
 let sampleSquares = [
     "e2", 1, 4

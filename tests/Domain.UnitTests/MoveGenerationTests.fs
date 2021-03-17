@@ -2,10 +2,10 @@ module Chess.Domain.UnitTests.MoveGenerationTests
 
 open Expecto
 
-open Chess.Domain.Fen
-open Chess.Domain.Position
-open Chess.Domain.Move
-open Chess.Domain.MoveGeneration
+open Chess.Domain.V1.Fen
+open Chess.Domain.V1.Position
+open Chess.Domain.V1.Move
+open Chess.Domain.V1.MoveGeneration
 
 let emptyPosition =
     {

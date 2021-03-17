@@ -1,4 +1,4 @@
-module Chess.Domain.MoveGeneration
+module Chess.Domain.V1.MoveGeneration
 
 open Position
 open Move
